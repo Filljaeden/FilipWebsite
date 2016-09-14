@@ -1,0 +1,45 @@
+﻿@model FilipWebsite.Models.Category
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Category</h4>
+    <hr/>
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Names)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Names)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Create Recipe", "Create", "Recipes")
+</p>
+<div>
+    @foreach (var item in Model.Recipes)
+    {
+        <hr/>
+        <p>
+            <h2><a href="/Recipes/Details/@item.Id">@item.Title</a></h2>
+        </p>
+
+        <p>
+            @Html.DisplayFor(modelItem => item.Body)
+        </p>
+        <p>
+            <b>@Html.DisplayFor(modelItem => item.Author.UserName)</b>
+        </p>
+    }
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
