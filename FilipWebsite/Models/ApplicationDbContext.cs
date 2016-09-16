@@ -25,5 +25,7 @@ namespace FilipWebsite.Models
         public System.Data.Entity.DbSet<FilipWebsite.Models.Recipe> Recipes { get; set; }
 
         public System.Data.Entity.DbSet<FilipWebsite.Models.Comment> Comments { get; set; }
+        public System.Data.Entity.DbSet<FilipWebsite.Models.File> Files { get; set; }
+        public System.Data.Entity.DbSet<FilipWebsite.Models.FilePath> FilePaths { get; set; }
     }
 }

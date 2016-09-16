@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
 using System.Web;
@@ -30,6 +31,7 @@ namespace FilipWebsite.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             Recipe recipe = db.Recipes.Find(id);
+            //Recipe student = db.Recipes.Include(s => s.Files).SingleOrDefault(s => s.Id == id);
             if (recipe == null)
             {
                 return HttpNotFound();
@@ -50,18 +52,39 @@ namespace FilipWebsite.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,Title,Body,AuthorId,CategoryId")] Recipe recipe)
+        public ActionResult Create([Bind(Include = "Id,Title,Body,AuthorId,CategoryId")] Recipe recipe, HttpPostedFileBase upload)
         {
-            if (ModelState.IsValid)
+            try
             {
-                recipe.Author = db.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
-                db.Recipes.Add(recipe);
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                if (ModelState.IsValid)
+                {
+                    if (upload != null && upload.ContentLength > 0)
+                    {
+                        var avatar = new Models.File
+                        {
+                            FileName = System.IO.Path.GetFileName(upload.FileName),
+                            FileType = FileType.Avatar,
+                            ContentType = upload.ContentType
+                        };
+                        using (var reader = new System.IO.BinaryReader(upload.InputStream))
+                        {
+                            avatar.Content = reader.ReadBytes(upload.ContentLength);
+                        }
+                        recipe.Files = new List<Models.File> { avatar };
+                    }
+                    recipe.Author = db.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
+                    db.Recipes.Add(recipe);
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
+                ViewBag.AuthorId = new SelectList(db.Users, "Id", "Email", recipe.AuthorId);
+                ViewBag.CategoryId = new SelectList(db.Categories, "Id", "Names", recipe.CategoryId);
             }
-
-            ViewBag.AuthorId = new SelectList(db.Users, "Id", "Email", recipe.AuthorId);
-            ViewBag.CategoryId = new SelectList(db.Categories, "Id", "Names", recipe.CategoryId);
+            catch (RetryLimitExceededException /* dex */)
+            {
+                //Log the error (uncomment dex variable name and add a line here to write a log.
+                ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists see your system administrator.");
+            }
             return View(recipe);
         }
 
@@ -73,6 +96,7 @@ namespace FilipWebsite.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             Recipe recipe = db.Recipes.Find(id);
+            //Recipe student = db.Recipes.Include(s => s.Files).SingleOrDefault(s => s.Id == id);
             if (recipe == null)
             {
                 return HttpNotFound();
@@ -85,19 +109,66 @@ namespace FilipWebsite.Controllers
         // POST: Recipes/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public ActionResult Edit([Bind(Include = "Id,Title,Body,AuthorId,CategoryId")] Recipe recipe)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        db.Entry(recipe).State = EntityState.Modified;
+        //        db.SaveChanges();
+        //        return RedirectToAction("Index");
+        //    }
+        //    ViewBag.AuthorId = new SelectList(db.Users, "Id", "Email", recipe.AuthorId);
+        //    ViewBag.CategoryId = new SelectList(db.Categories, "Id", "Names", recipe.CategoryId);
+        //    return View(recipe);
+        //}
+
+        [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,Title,Body,AuthorId,CategoryId")] Recipe recipe)
+        public ActionResult Edit(int? id, HttpPostedFileBase upload)
         {
-            if (ModelState.IsValid)
+            if (id == null)
             {
-                db.Entry(recipe).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ViewBag.AuthorId = new SelectList(db.Users, "Id", "Email", recipe.AuthorId);
-            ViewBag.CategoryId = new SelectList(db.Categories, "Id", "Names", recipe.CategoryId);
-            return View(recipe);
+            var recipesToUpdate = db.Recipes.Find(id);
+            if (TryUpdateModel(recipesToUpdate, "",
+                new string[] { "LastName", "FirstMidName", "EnrollmentDate" }))
+            {
+                try
+                {
+                    if (upload != null && upload.ContentLength > 0)
+                    {
+                        if (recipesToUpdate.Files.Any(f => f.FileType == FileType.Avatar))
+                        {
+                            db.Files.Remove(recipesToUpdate.Files.First(f => f.FileType == FileType.Avatar));
+                        }
+                        var avatar = new Models.File
+                        {
+                            FileName = System.IO.Path.GetFileName(upload.FileName),
+                            FileType = FileType.Avatar,
+                            ContentType = upload.ContentType
+                        };
+                        using (var reader = new System.IO.BinaryReader(upload.InputStream))
+                        {
+                            avatar.Content = reader.ReadBytes(upload.ContentLength);
+                        }
+                        recipesToUpdate.Files = new List<Models.File> { avatar };
+                    }
+                    db.Entry(recipesToUpdate).State = EntityState.Modified;
+                    db.SaveChanges();
+
+                    return RedirectToAction("Index");
+                }
+                catch (RetryLimitExceededException /* dex */)
+                {
+                    //Log the error (uncomment dex variable name and add a line here to write a log.
+                    ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists, see your system administrator.");
+                }
+            }
+            return View(recipesToUpdate);
         }
 
         // GET: Recipes/Delete/5

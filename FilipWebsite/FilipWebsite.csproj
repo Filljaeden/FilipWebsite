@@ -198,6 +198,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\CategoriesController.cs" />
     <Compile Include="Controllers\CommentsController.cs" />
+    <Compile Include="Controllers\FileController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\RecipesController.cs" />
@@ -210,6 +211,9 @@
     <Compile Include="Models\ApplicationUser.cs" />
     <Compile Include="Models\Category.cs" />
     <Compile Include="Models\Comment.cs" />
+    <Compile Include="Models\File.cs" />
+    <Compile Include="Models\FilePath.cs" />
+    <Compile Include="Models\FileType.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\Recipe.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -292,6 +296,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\File\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />

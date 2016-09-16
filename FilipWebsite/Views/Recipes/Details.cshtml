@@ -10,14 +10,19 @@
     <h4>Recipe</h4>
     <hr/>
     <dl class="dl-horizontal">
+        
         <dt>
-            @Html.DisplayNameFor(model => model.Author.Email)
+            Picture
         </dt>
 
-        <dd>
-            @Html.DisplayFor(model => model.Author.Email)
-        </dd>
 
+        @if (Model.Files.Any(f => f.FileType == FileType.Avatar))
+        {
+
+            <dd>
+                <img src="~/File?id=@Model.Files.First(f => f.FileType == FileType.Avatar).FileId" alt="avatar" height="125" width="125" />
+            </dd>
+        }
         <dt>
             @Html.DisplayNameFor(model => model.Category.Names)
         </dt>
@@ -40,6 +45,13 @@
 
         <dd>
             @Html.DisplayFor(model => model.Body)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Author.UserName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Author.UserName)
         </dd>
 
     </dl>

@@ -29,5 +29,9 @@ namespace FilipWebsite.Models
 
         public virtual ICollection<Comment> Comments { get; set; }
 
+        public virtual ICollection<File> Files { get; set; }
+
+        public virtual ICollection<FilePath> FilePaths { get; set; }
+
     }
 }

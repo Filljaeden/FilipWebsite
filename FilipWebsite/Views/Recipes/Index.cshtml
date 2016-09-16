@@ -12,7 +12,7 @@
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.Author.Email)
+            @Html.DisplayNameFor(model => model.Author.UserName)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.Category.Names)
@@ -28,10 +28,14 @@
 
 @foreach (var item in Model) {
     <tr>
+        @*<td>
+            <img src="~/File?id=@Model.Files.First(f => f.FileType == FileType.Avatar).FileId" alt="avatar" height="125" width="125" />
+        </td>*@
+
         <td>
             @if (item.Author != null)
-                {
-                @item.Author.Email
+            {
+                @item.Author.UserName
             }
             else
             {

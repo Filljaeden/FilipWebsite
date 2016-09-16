@@ -27,6 +27,9 @@
     @foreach (var item in Model.Recipes)
     {
         <hr/>
+        @*<p>
+            <img src="~/File?id=@Model.Recipes.First(f => f.FileType == FileType.Avatar).FileId" alt="avatar" height="125" width="125" />
+        </p>*@
         <p>
             <h2><a href="/Recipes/Details/@item.Id">@item.Title</a></h2>
         </p>
